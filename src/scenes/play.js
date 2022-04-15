@@ -5,15 +5,19 @@ class Play extends Phaser.Scene{
 
     preload() {
         this.load.image('starfield', './assets/starfield.png');
-        this.load.image('rocket', './assets/rocket.png');
-        this.load.image('lily', './assets/lilyPad.png');
+        this.load.image('rocket', './assets/blank.png');
+        this.load.image('lily', './assets/padFrog.png');
         this.load.image('leavesBackground', './assets/leaves.png');
         //this.load.image('spaceship', './assets/spaceship.png');
         this.load.spritesheet('spaceship', './assets/spaceship.png', {frameWidth: 48, frameHeight: 64, startFrame: 0, endFrame: 1});
 
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
+
+        
     }
+
+    
 
     create(){
 
@@ -87,6 +91,9 @@ class Play extends Phaser.Scene{
             this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
+
+        this.tounge = this.add.rectangle(this.p1Rocket.x, this.pad.y, 5, this.p1Rocket.y - this.pad.y, 0xFFFFFF).setOrigin(0, 0);
+        this.pad.depth = 1;
     }
 
     update(){
@@ -99,27 +106,36 @@ class Play extends Phaser.Scene{
         }
 
         this.bg.tilePositionX -= 4;
-        if (!this.gameOver) {               
+        if (!this.gameOver) {  
+            this.tounge.destroy();
+            this.tounge = this.add.rectangle(this.p1Rocket.x, this.pad.y, 5, this.p1Rocket.y - this.pad.y, 0xFF0000).setOrigin(0, 0);             
             this.p1Rocket.update();         // update rocket sprite
             //this.pad.update(); 
             this.pad.x = this.p1Rocket.x;
+            
+            
+            //player.setPosition(this.pad.x, this.pad.y);
+            //frogPos.draw(frog);
+
             this.ship01.update();           // update spaceships (x3)
             this.ship02.update();
             this.ship03.update();
         } 
 
         // check collisions
-        if(this.checkCollision(this.p1Rocket, this.ship03)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship03);   
-        }
-        if (this.checkCollision(this.p1Rocket, this.ship02)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship02);   
-        }
-        if (this.checkCollision(this.p1Rocket, this.ship01)) {
-            this.p1Rocket.reset();
-            this.shipExplode(this.ship01);   
+        if(!this.p1Rocket.resetting){
+            if(this.checkCollision(this.p1Rocket, this.ship03)) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.ship03);   
+            }
+            if (this.checkCollision(this.p1Rocket, this.ship02)) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.ship02);   
+            }
+            if (this.checkCollision(this.p1Rocket, this.ship01)) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.ship01);   
+            }
         }
     }
 

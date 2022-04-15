@@ -5,7 +5,7 @@ class lilyPad extends Phaser.GameObjects.Sprite {
   
       // add object to existing scene
       scene.add.existing(this);             //add to existing, displayList, updateList
-      this.moveSpeed = 4;                   //pixels per frame
+      //this.moveSpeed = 4;                   //pixels per frame
     }
 
     update(){
