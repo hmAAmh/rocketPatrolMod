@@ -21,6 +21,7 @@ class menu extends Phaser.Scene{
         this.load.image('logRightSpr', './assets/logRight.png');
         //this.load.image('spaceship', './assets/spaceship.png');
         this.load.spritesheet('spaceship', './assets/spaceship.png', {frameWidth: 48, frameHeight: 64, startFrame: 0, endFrame: 1});
+        this.load.spritesheet('fly', './assets/fly.png', {frameWidth: 28, frameHeight: 42, startFrame: 0, endFrame: 1});
 
         // load spritesheet
         this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
@@ -82,7 +83,8 @@ class menu extends Phaser.Scene{
           // easy mode
           game.settings = {
             spaceshipSpeed: 3,
-            gameTimer: 60000    
+            gameTimer: 60000,
+            speedTimer: 30000    
           }
           this.sound.play('sfx_select');
           this.scene.start('play');    
@@ -91,7 +93,8 @@ class menu extends Phaser.Scene{
           // hard mode
           game.settings = {
             spaceshipSpeed: 4,
-            gameTimer: 45000      
+            gameTimer: 45000,   
+            speedTimer: 22500   
           }
           this.sound.play('sfx_select');
           this.scene.start('play');    

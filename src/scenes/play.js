@@ -32,6 +32,12 @@ class Play extends Phaser.Scene{
             frames: this.anims.generateFrameNumbers('spaceship', { start: 0, end: 1, first: 0}),
             frameRate: 60
         }); 
+
+        this.anims.create({
+            key: 'flyAnim',
+            frames: this.anims.generateFrameNumbers('fly', { start: 0, end: 1, first: 0}),
+            frameRate: 60
+        }); 
         
         // add rocket (p1)
         this.pad = new lilyPad(this, game.config.width/2, game.config.height - borderUISize - borderPadding, 'lily').setOrigin(0.5, 0.75);
@@ -41,6 +47,7 @@ class Play extends Phaser.Scene{
         this.ship01 = new Spaceship(this, game.config.width + borderUISize*6, borderUISize*4, 'dragonFly', 0, 30).setOrigin(0, 0);
         this.ship02 = new Spaceship(this, game.config.width + borderUISize*3, borderUISize*5 + borderPadding*2, 'dragonFly', 0, 20).setOrigin(0,0);
         this.ship03 = new Spaceship(this, game.config.width, borderUISize*6 + borderPadding*4, 'dragonFly', 0, 10).setOrigin(0,0);
+        this.flyShip = new Fly(this, game.config.width, borderUISize*5 + borderPadding*2, 'flyAnim', 0, 60).setOrigin(0,0);
     
 
 
@@ -88,6 +95,14 @@ class Play extends Phaser.Scene{
             this.gameOver = true;
         }, null, this);
 
+        this.speedClock = this.time.delayedCall(game.settings.speedTimer, () => {
+            //game.settings.spaceshipSpeed += 1;
+            this.ship01.moveSpeed += 1;
+            this.ship02.moveSpeed += 1;
+            this.ship03.moveSpeed += 1;
+            this.flyShip.moveSpeed += 1;
+        }, null, this);
+
         this.tounge = this.add.rectangle(this.p1Rocket.x, this.pad.y, 5, this.p1Rocket.y - this.pad.y, 0xFFFFFF).setOrigin(0, 0);
         this.pad.depth = 1;
     }
@@ -117,6 +132,7 @@ class Play extends Phaser.Scene{
             this.ship01.update();           // update spaceships (x3)
             this.ship02.update();
             this.ship03.update();
+            this.flyShip.update();
         } 
 
         // check collisions
@@ -132,6 +148,10 @@ class Play extends Phaser.Scene{
             if (this.checkCollision(this.p1Rocket, this.ship01) && !this.ship01.moveDown) {
                 this.p1Rocket.reset();
                 this.shipExplode(this.ship01);   
+            }
+            if (this.checkCollision(this.p1Rocket, this.flyShip) && !this.flyShip.moveDown) {
+                this.p1Rocket.reset();
+                this.shipExplode(this.flyShip);   
             }
         }
     }
