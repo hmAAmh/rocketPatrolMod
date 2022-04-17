@@ -15,3 +15,4 @@ let game = new Phaser.Game(config);
 
 // reserve keyboard vars
 let keyF, keyR, keyLEFT, keyRIGHT;
+let music;

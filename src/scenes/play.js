@@ -4,15 +4,7 @@ class Play extends Phaser.Scene{
     }
 
     preload() {
-        this.load.image('starfield', './assets/starfield.png');
-        this.load.image('rocket', './assets/blank.png');
-        this.load.image('lily', './assets/padFrog.png');
-        this.load.image('leavesBackground', './assets/leaves.png');
-        //this.load.image('spaceship', './assets/spaceship.png');
-        this.load.spritesheet('spaceship', './assets/spaceship.png', {frameWidth: 48, frameHeight: 64, startFrame: 0, endFrame: 1});
 
-        // load spritesheet
-        this.load.spritesheet('explosion', './assets/explosion.png', {frameWidth: 64, frameHeight: 32, startFrame: 0, endFrame: 9});
 
         
     }
@@ -54,13 +46,17 @@ class Play extends Phaser.Scene{
 
         // green UI background
         //this.add.rectangle(0, borderUISize + borderPadding, game.config.width, borderUISize * 2, 0x00FF00).setOrigin(0, 0);
-        this.leaves = new topLeaves(this, 0, borderUISize, 'leavesBackground', 0, 10).setOrigin(0,0);
+        this.leaves = new topLeaves(this, 0, borderUISize - 4, 'leavesBackground', 0, 10).setOrigin(0,0);
         //switch1 = this.physics.add.staticSprite(707, 420, 'leaves');
         // white borders
-        this.add.rectangle(0, 0, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
-        this.add.rectangle(0, game.config.height - borderUISize, game.config.width, borderUISize, 0xFFFFFF).setOrigin(0, 0);
-        this.add.rectangle(0, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
-        this.add.rectangle(game.config.width - borderUISize, 0, borderUISize, game.config.height, 0xFFFFFF).setOrigin(0, 0);
+        this.logTop = new topLeaves(this, 0, borderUISize, 'logRightSpr', 0, 10).setOrigin(0);
+        this.logTop.angle -= 90;
+        this.logBottom = new topLeaves(this, game.config.width, game.config.height - borderUISize, 'logRightSpr', 0, 10).setOrigin(0);
+        this.logBottom.angle += 90;
+        this.logLeft = new topLeaves(this, 0  - borderUISize * 2, 0, 'logRightSpr', 0, 10).setOrigin(0);
+        this.logLeft.flipX = true;
+
+        this.logRight = new topLeaves(this, game.config.width - borderUISize, 0, 'logRightSpr', 0, 10).setOrigin(0,0);
 
 
 
@@ -68,10 +64,10 @@ class Play extends Phaser.Scene{
         this.p1Score = 0;   
         // display score
         let scoreConfig = {
-            fontFamily: 'Courier',
-            fontSize: '28px',
-            backgroundColor: '#F3B141',
-            color: '#843605',
+            fontFamily: 'Seoge Print',
+            fontSize: '24px',
+            //backgroundColor: '#F3B141',
+            color: '#31870A',
             align: 'right',
             padding: {
             top: 5,
@@ -79,7 +75,8 @@ class Play extends Phaser.Scene{
             },
             fixedWidth: 100
         }
-        this.scoreLeft = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, this.p1Score, scoreConfig);
+        this.scoreDraw = new topLeaves(this, borderUISize + borderPadding, borderUISize + borderPadding*2, 'scoreSpr', 0, 10).setOrigin(0);
+        this.scoreLeft = this.add.text(borderUISize + borderPadding*4, borderUISize + borderPadding*2, this.p1Score, scoreConfig);
 
         // GAME OVER flag
         this.gameOver = false;
@@ -87,8 +84,7 @@ class Play extends Phaser.Scene{
         // 60-second play clock
         scoreConfig.fixedWidth = 0;
         this.clock = this.time.delayedCall(game.settings.gameTimer, () => {
-            this.add.text(game.config.width/2, game.config.height/2, 'GAME OVER', scoreConfig).setOrigin(0.5);
-            this.add.text(game.config.width/2, game.config.height/2 + 64, 'Press (R) to Restart or ← for Menu', scoreConfig).setOrigin(0.5);
+            this.gameOverDraw = new topLeaves(this, game.config.width / 2, game.config.height / 2 + borderUISize, 'gameOverSpr', 0, 10).setOrigin(0.5);
             this.gameOver = true;
         }, null, this);
 
@@ -102,6 +98,7 @@ class Play extends Phaser.Scene{
             this.scene.restart();
         }
         if (this.gameOver && Phaser.Input.Keyboard.JustDown(keyLEFT)) {
+            music.stop();
             this.scene.start("menu");
         }
 
@@ -124,15 +121,15 @@ class Play extends Phaser.Scene{
 
         // check collisions
         if(!this.p1Rocket.resetting){
-            if(this.checkCollision(this.p1Rocket, this.ship03)) {
+            if(this.checkCollision(this.p1Rocket, this.ship03) && !this.ship03.moveDown) {
                 this.p1Rocket.reset();
                 this.shipExplode(this.ship03);   
             }
-            if (this.checkCollision(this.p1Rocket, this.ship02)) {
+            if (this.checkCollision(this.p1Rocket, this.ship02) && !this.ship02.moveDown) {
                 this.p1Rocket.reset();
                 this.shipExplode(this.ship02);   
             }
-            if (this.checkCollision(this.p1Rocket, this.ship01)) {
+            if (this.checkCollision(this.p1Rocket, this.ship01) && !this.ship01.moveDown) {
                 this.p1Rocket.reset();
                 this.shipExplode(this.ship01);   
             }
@@ -152,19 +149,12 @@ class Play extends Phaser.Scene{
     }
 
     shipExplode(ship) {
-        // temporarily hide ship
-        ship.alpha = 0;
-        // create explosion sprite at ship's position
-        let boom = this.add.sprite(ship.x, ship.y, 'explosion').setOrigin(0, 0);
-        boom.anims.play('explode');             // play explode animation
-        boom.on('animationcomplete', () => {    // callback after anim completes
-          ship.reset();                         // reset ship position
-          ship.alpha = 1;                       // make ship visible again
-          boom.destroy();                       // remove explosion sprite
-        });       
-        // score add and repaint
+        // score add and repaint*/
+        ship.x = this.p1Rocket.x - 16;
         this.p1Score += ship.points;
         this.scoreLeft.text = this.p1Score; 
         this.sound.play('sfx_explosion'); 
+        
+        ship.moveDown = true;
       }
 }
